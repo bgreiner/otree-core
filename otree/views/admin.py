@@ -31,12 +31,15 @@ from otree.models_concrete import (
 from otree.session import SESSION_CONFIGS_DICT, create_session, SessionConfig
 from otree.views.abstract import GenericWaitPageMixin, AdminSessionPageMixin
 from django.db.models import Case, Value, When
+<<<<<<< HEAD
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.forms import UserChangeForm
 from django.contrib.auth.forms import UserCreationForm
 from django.views.generic import DeleteView
+=======
+>>>>>>> d9fd7d68641f69d7e9b6f37779afae121e342ae5
 
 def pretty_name(name):
     """Converts 'first_name' to 'first name'"""
@@ -170,8 +173,11 @@ class CreateSession(vanilla.FormView):
                     edited_session_config_fields[k])
         session_kwargs['edited_session_config_fields'] = edited_session_config_fields
 
+<<<<<<< HEAD
         session_kwargs['user'] = self.request.user.id
         session_kwargs['username'] = self.request.user.username
+=======
+>>>>>>> d9fd7d68641f69d7e9b6f37779afae121e342ae5
 
         use_browser_bots = edited_session_config_fields.get('use_browser_bots')
         if use_browser_bots is None:
@@ -633,6 +639,7 @@ class AdminReport(AdminSessionPageMixin, vanilla.TemplateView):
         return context
 
 
+<<<<<<< HEAD
 
 class Account(vanilla.TemplateView):
     template_name = 'otree/admin/Account.html'
@@ -816,6 +823,8 @@ class NewUser(vanilla.TemplateView):
 
     pass
 
+=======
+>>>>>>> d9fd7d68641f69d7e9b6f37779afae121e342ae5
 class ServerCheck(vanilla.TemplateView):
     template_name = 'otree/admin/ServerCheck.html'
 

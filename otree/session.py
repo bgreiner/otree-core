@@ -3,7 +3,10 @@
 
 import random
 import sys
+<<<<<<< HEAD
 from django.contrib.auth.models import User
+=======
+>>>>>>> d9fd7d68641f69d7e9b6f37779afae121e342ae5
 from functools import reduce
 from collections import OrderedDict
 from decimal import Decimal
@@ -263,11 +266,15 @@ def create_session(
         pre_create_id=None,
         room_name=None, for_mturk=False,
         is_demo=False,
+<<<<<<< HEAD
         edited_session_config_fields=None,
         user,
         username) -> Session:
 
     user = User.objects.get(id=user)
+=======
+        edited_session_config_fields=None) -> Session:
+>>>>>>> d9fd7d68641f69d7e9b6f37779afae121e342ae5
 
     num_subsessions = 0
     edited_session_config_fields = edited_session_config_fields or {}
@@ -307,9 +314,13 @@ def create_session(
             _pre_create_id=pre_create_id,
             is_demo=is_demo,
             num_participants=num_participants,
+<<<<<<< HEAD
             mturk_num_participants=mturk_num_participants,
             user=user,
             username=username
+=======
+            mturk_num_participants=mturk_num_participants
+>>>>>>> d9fd7d68641f69d7e9b6f37779afae121e342ae5
             ) # type: Session
 
         # check that it divides evenly
