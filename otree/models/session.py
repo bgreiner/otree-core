@@ -36,6 +36,13 @@ class Session(ModelWithVars):
     _pickle_fields = ['vars', 'config']
     config = models._PickleField(default=dict, null=True)  # type: dict
 
+    # admin key
+    user = models.ForeignKey('auth.User', blank=True, null=True)
+
+    # admin username
+
+    username = models.CharField(blank=True, null=True)
+
     # label of this session instance
     label = models.CharField(
         max_length=300, null=True, blank=True,
