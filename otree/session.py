@@ -3,6 +3,7 @@
 
 import random
 import sys
+from django.contrib.auth.models import User
 from functools import reduce
 from collections import OrderedDict
 from decimal import Decimal
@@ -262,7 +263,11 @@ def create_session(
         pre_create_id=None,
         room_name=None, for_mturk=False,
         is_demo=False,
-        edited_session_config_fields=None) -> Session:
+        edited_session_config_fields=None,
+        user,
+        username) -> Session:
+
+    user = User.objects.get(id=user)
 
     num_subsessions = 0
     edited_session_config_fields = edited_session_config_fields or {}
@@ -302,7 +307,9 @@ def create_session(
             _pre_create_id=pre_create_id,
             is_demo=is_demo,
             num_participants=num_participants,
-            mturk_num_participants=mturk_num_participants
+            mturk_num_participants=mturk_num_participants,
+            user=user,
+            username=username
             ) # type: Session
 
         # check that it divides evenly

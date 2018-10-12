@@ -59,7 +59,9 @@ class CreateDemoSession(vanilla.GenericView):
         session_kwargs = {
             'is_demo': True,
             'session_config_name': session_config_name,
-            'num_participants': session_config['num_demo_participants']
+            'num_participants': session_config['num_demo_participants'],
+            'user':self.request.user.id,
+            'username':self.request.user.username
         }
 
         use_browser_bots = session_config.get('use_browser_bots', False)

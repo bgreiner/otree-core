@@ -9,21 +9,17 @@
     <div class="col-md-3 card bg-light">
         <div class="card-body">
             <div>
-                {{ intro_html|safe }}
-            </div>
-            {% if is_debug %}
-                <div>
-                    You can add entries to this list in
-                    <code>settings.py</code>.
+                <a href="http://orsee.wu.ac.at/wu/otree/" target="_blank">Click here for more information on downloading and using these experiments yourself.
+
+
                 </div>
-            {% endif %}
         </div>
     </div>
 
     <div class="col-md-9">
         <div class="list-group">
         {% for s in session_info %}
-            <a href="{{ s.url }}" class="list-group-item" target="_blank">
+            <a href="{{ s.url }}" class="list-group-item" target="_blank">{{ s.display_name }}
                 {% if s.num_demo_participants == 1 %}
                 <span class="badge badge-secondary float-right">
                 {% elif s.num_demo_participants == 2 %}
@@ -32,7 +28,6 @@
                 <span class="badge badge-danger float-right">
                 {% endif %}
                 Participants: {{s.num_demo_participants}}</span>
-                {{ s.display_name }}
             </a>
         {% endfor %}
         </div>

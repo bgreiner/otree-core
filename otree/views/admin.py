@@ -31,6 +31,12 @@ from otree.models_concrete import (
 from otree.session import SESSION_CONFIGS_DICT, create_session, SessionConfig
 from otree.views.abstract import GenericWaitPageMixin, AdminSessionPageMixin
 from django.db.models import Case, Value, When
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.forms import UserChangeForm
+from django.contrib.auth.forms import UserCreationForm
+from django.views.generic import DeleteView
 
 def pretty_name(name):
     """Converts 'first_name' to 'first name'"""
@@ -164,6 +170,8 @@ class CreateSession(vanilla.FormView):
                     edited_session_config_fields[k])
         session_kwargs['edited_session_config_fields'] = edited_session_config_fields
 
+        session_kwargs['user'] = self.request.user.id
+        session_kwargs['username'] = self.request.user.username
 
         use_browser_bots = edited_session_config_fields.get('use_browser_bots')
         if use_browser_bots is None:
@@ -624,6 +632,189 @@ class AdminReport(AdminSessionPageMixin, vanilla.TemplateView):
 
         return context
 
+
+
+class Account(vanilla.TemplateView):
+    template_name = 'otree/admin/Account.html'
+
+    url_pattern = r"^account/$"
+    pass
+
+class UserChangeForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'email')
+
+
+class EditUser(vanilla.UpdateView):
+    template_name = 'otree/admin/EditUser.html'
+
+    url_pattern = r"^account/edit_user/$"
+    def get(self, request, *args, **kwargs):
+        form = UserChangeForm(instance=request.user)
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        form = UserChangeForm(request.POST,instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.add_message(request, messages.SUCCESS, 'Information Updated.')
+        else:
+            messages.add_message(request, messages.ERROR, 'Information Update failed.')
+            for values in form.errors:
+                messages.add_message(request, messages.ERROR, form.errors[values])
+        # validate to get error messages
+        return HttpResponseRedirect("/account/")
+
+
+
+class PasswordChange(vanilla.TemplateView):
+    template_name = 'otree/admin/Password_Change.html'
+
+    url_pattern = r"^account/password_change/$"
+
+    def get(self, request, *args, **kwargs):
+        form = PasswordChangeForm(user=request.user)
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        form = PasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, form.user)
+            messages.add_message(request, messages.SUCCESS, 'Successfully changed password.')
+        else:
+            messages.add_message(request, messages.ERROR, 'Password change unsuccessful.')
+            for values in form.errors:
+                messages.add_message(request, messages.ERROR, form.errors[values])
+            return HttpResponseRedirect("/account/password_change/")
+        # validate to get error messages
+        return HttpResponseRedirect("/account/")
+
+
+    pass
+
+class Users(vanilla.TemplateView):
+    template_name = 'otree/admin/Users.html'
+
+    url_pattern = r"^users/$"
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            raise Http404("Must be admin to access this page")
+        session_info = []
+        users = User.objects.all()
+
+        for user in users:
+            user_pk = user.pk
+            delete = str(user.pk)+"/delete"
+            session_info.append({'user':user,
+                                 'url':user_pk,
+                                 'delete':delete})
+        context = {'session_info':session_info}
+        return self.render_to_response(context)
+    pass
+
+class AdminUser(vanilla.TemplateView):
+    url_pattern = r'^users/(?P<user>\d+)/$'
+    template_name = 'otree/admin/AdminUsers.html'
+
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            raise Http404("Must be admin to access this page")
+        user_pk = kwargs['user']
+        try:
+            user = User.objects.get(pk=user_pk)
+        except User.DoesNotExist:
+            raise Http404('User does not exist')
+        context = {'username':user.username,
+                    'first_name':user.first_name,
+                   'last_name':user.last_name,
+                   'email':user.email,
+                   'user_pk':user.pk,
+                    'edit':"edit"}
+        return self.render_to_response(context)
+
+class EditAdminUser(vanilla.TemplateView):
+    url_pattern = r'^users/(?P<user>\d+)/edit$'
+    template_name = 'otree/admin/AdminEditUser.html'
+
+
+    def get(self, request, *args, **kwargs):
+        user_pk = kwargs['user']
+        try:
+            user = User.objects.get(pk=user_pk)
+        except User.DoesNotExist:
+            raise Http404('User does not exist')
+        form = UserChangeForm(instance=user)
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        user_pk = kwargs['user']
+        try:
+            user = User.objects.get(pk=user_pk)
+        except User.DoesNotExist:
+            raise Http404('User does not exist')
+        form = UserChangeForm(request.POST,instance=user)
+        if form.is_valid():
+            form.save()
+            messages.add_message(request, messages.SUCCESS, 'Information Updated.')
+        else:
+            messages.add_message(request, messages.ERROR, 'Information Update failed.')
+            for values in form.errors:
+                messages.add_message(request, messages.ERROR, form.errors[values])
+        # validate to get error messages
+        return HttpResponseRedirect("/users/")
+
+class DeleteUser(DeleteView):
+    url_pattern = r'^users/(?P<pk>\d+)/delete$'
+    template_name = 'otree/admin/DeleteUser.html'
+    model = User
+    success_url = "/users/"
+    success_message = "User was deleted successfully."
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(DeleteUser, self).delete(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        user_pk = kwargs['pk']
+        try:
+            user = User.objects.get(pk=user_pk)
+        except User.DoesNotExist:
+            raise Http404('User does not exist')
+        if request.user.username != 'admin':
+            raise Http404('Must be admin to delete a user.')
+        if user.username == 'admin':
+            raise Http404('Cannot delete admin user.')
+        context = {'username':user.username}
+        return self.render_to_response(context)
+
+class NewUser(vanilla.TemplateView):
+    template_name = 'otree/admin/NewUser.html'
+
+    url_pattern = r"^users/create_new$"
+
+    def get(self, request, *args, **kwargs):
+        form = UserCreationForm()
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        form = UserCreationForm(data=request.POST)
+        if form.is_valid():
+            form.save()
+            messages.add_message(request, messages.SUCCESS, 'User created successfully.')
+        else:
+            messages.add_message(request, messages.ERROR, 'User creation failed. Make sure username is unique.')
+        # validate to get error messages
+        return HttpResponseRedirect("/users")
+
+    pass
 
 class ServerCheck(vanilla.TemplateView):
     template_name = 'otree/admin/ServerCheck.html'

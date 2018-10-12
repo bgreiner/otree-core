@@ -1,0 +1,71 @@
+{% extends "otree/BaseAdmin.html" %}
+
+{% block title %}
+    Create or remove users
+{% endblock %}
+{% block content %}
+
+
+{% if messages %}
+
+    {% for message in messages %}
+        {% if message.tags == 'success' %}
+            <div class="alert alert-success" role="alert">{{ message|escape|safe }}</div>
+        {% else %}
+            <div class="alert alert-danger" role="alert">{{ message|escape|safe }}</div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<table class="table">
+            <thead>
+                <th>Username</th>
+                <th></th>
+            </thead>
+            <tbody>
+            {%  for s in session_info  %}
+
+            <tr>
+                <td>
+                {% if s.user.username != "admin" %}
+                {{ s.user }}
+                    {% endif %}
+                </td>
+                <td>
+
+                {% if s.user.username != "admin" %}
+                    <button id="edit-user" class="btn btn-primary" type="button"
+       data-toggle="popover" data-trigger="hover" onclick="location.href='{{ s.url }}'"
+       data-content="Edit">Edit
+                        {% endif %}
+    </button>
+
+
+                </td><td>
+                {% if s.user.username != "admin" %}
+                    <button id="delete-user" class="btn btn-primary" type="button"
+       data-toggle="popover" data-trigger="hover" onclick="location.href='{{ s.delete }}'"
+       data-content="Delete">Delete
+                        {% endif %}
+    </button>
+
+
+                </td>
+            </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+
+
+
+
+<br>
+<button id="add_new_user" class="btn btn-primary" type="button"
+       data-toggle="popover" data-trigger="hover" onclick="location.href='{% url 'NewUser' %}'"
+       data-content="Add New User">
+        Add New User
+    </button>
+
+{% endblock %}
+Success

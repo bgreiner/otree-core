@@ -71,6 +71,16 @@ $(function () {
 
                 {% if request.user.is_authenticated|default:False %}
                     <li><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+                {% else %}
+                <li><a class="nav-link" href="{% url 'login_url' %}">Login</a></li>
+            {% endif %}
+
+                </ul>
+
+            <ul class="navbar-nav ml-auto">
+                    {% if request.user.is_superuser %}<li class="nav-item {% active_page request 'Users' %}"><a class="nav-link" href="{% url 'Users' %}">Users</a></li>
+                    {% else %} <li class="nav-item {% active_page request 'Account' %}"><a class="nav-link" href="{% url 'Account' %}">{{user.username}}</a></li>
+
                 {% endif %}
             </ul>
         </div>

@@ -141,6 +141,7 @@ $(function() {
             </thead>
             <tbody>
             {% for s in object_list %}
+            {% if s.user_id == request.user.id %}
             <tr {% if s.archived %}class="hidden"{% endif %}>
                 <td>
                     <input name="session" type="checkbox" value="{{ s.code }}">
@@ -183,6 +184,7 @@ $(function() {
                     {% endif %}
                 </td>
             </tr>
+            {% endif %}
             {% endfor %}
             </tbody>
         </table>

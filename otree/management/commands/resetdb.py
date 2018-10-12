@@ -30,7 +30,7 @@ def drop_tables_command(db_engine):
 class Command(BaseCommand):
     help = (
         "Resets your development database to a fresh state. "
-        "All data will be deleted.")
+        "All data will be deleted apart from admin users.")
 
     def add_arguments(self, parser):
         ahelp = (
@@ -42,7 +42,7 @@ class Command(BaseCommand):
 
     def _confirm(self):
         self.stdout.write(
-            "This will delete and recreate your database. ")
+            "This will delete and recreate your database but keep all existing user data. ")
         answer = six.moves.input("Proceed? (y or n): ")
         if answer:
             return answer[0].lower() == 'y'
@@ -73,6 +73,11 @@ class Command(BaseCommand):
     def handle(self, **options):
         if options.pop("interactive") and not self._confirm():
             self.stdout.write('Canceled.')
+            return
+        try:
+            call_command('user_backup')
+        except:
+            self.stdout.write('User backup unsuccessful. Canceling reset...')
             return
 
         for db, dbconf in six.iteritems(settings.DATABASES):
@@ -119,3 +124,4 @@ class Command(BaseCommand):
         # but I recall that this was difficult - because there were many
         # code paths or exception classes. Could re-investigate.)
         logger.info('Created new tables and columns.')
+        call_command('user_restore')

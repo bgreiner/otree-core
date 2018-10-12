@@ -1,0 +1,14 @@
+{% extends "otree/BaseAdmin.html" %}
+
+{% block title %}
+    Are you sure you want to delete user {{username}}?
+{% endblock %}
+
+{% block content %}
+<form method="post">
+  {% csrf_token %}
+
+
+  <button type="submit" class="btn btn-danger">Yes, I'm sure.</button>
+</form>
+{% endblock %}
