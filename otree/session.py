@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+﻿#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import random
@@ -267,7 +267,10 @@ def create_session(
         user,
         username) -> Session:
 
-    user = User.objects.get(id=user)
+    try:
+        user = User.objects.get(id=user)
+    except User.DoesNotExist:
+        user = None
 
     num_subsessions = 0
     edited_session_config_fields = edited_session_config_fields or {}
