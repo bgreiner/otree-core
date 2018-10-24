@@ -23,7 +23,7 @@ Typical setup
 
 ::
 
-    pip install -U otree
+    pip install "git+git://github.com/bgreiner/otree-core"
     otree startproject oTree
     cd oTree
     otree devserver
