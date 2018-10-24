@@ -632,7 +632,10 @@ class AdminReport(AdminSessionPageMixin, vanilla.TemplateView):
 
         return context
 
-
+class BenPage(vanilla.TemplateView):
+    template_name = 'otree/admin/BenPage.html'
+    url_pattern = r"^benpage/$"
+    pass
 
 class Account(vanilla.TemplateView):
     template_name = 'otree/admin/Account.html'
